@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>交易利润计算器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 15px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .calculator {
+            padding: 20px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            border: 1px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 15px;
+            background: #fafbfc;
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .buy-section .section-title {
+            color: #e74c3c;
+            border-bottom-color: #e74c3c;
+        }
+        
+        .sell-section .section-title {
+            color: #27ae60;
+            border-bottom-color: #27ae60;
+        }
+        
+        .loan-section .section-title {
+            color: #f39c12;
+            border-bottom-color: #f39c12;
+        }
+        
+        .target-section .section-title {
+            color: #9b59b6;
+            border-bottom-color: #9b59b6;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .sync-note {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .sync-note i {
+            margin-right: 5px;
+            color: #3498db;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+            margin: 15px 0;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #2573a7 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
+        }
+        
+        .result-section {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .result-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .result-label {
+            font-weight: 500;
+        }
+        
+        .result-value {
+            font-weight: 600;
+        }
+        
+        .profit-positive {
+            color: #2ecc71;
+        }
+        
+        .profit-negative {
+            color: #e74c3c;
+        }
+        
+        .instructions {
+            background: #e8f4fc;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 20px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .instructions h3 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 600px) {
+            .calculator {
+                padding: 15px;
+            }
+            
+            input {
+                padding: 10px;
+            }
+            
+            .btn {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>交易利润计算器</h1>
+            <p class="subtitle">计算您的交易利润，考虑手续费和借款利息</p>
+        </div>
+        
+        <div class="calculator">
+            <div class="section buy-section">
+                <div class="section-title">买入信息</div>
+                
+                <div class="form-group">
+                    <label for="buyPrice">买入单价（元）</label>
+                    <input type="number" id="buyPrice" placeholder="输入买入价格" step="0.001">
+                </div>
+                
+                <div class="form-group">
+                    <label for="buyQuantity">买入数量</label>
+                    <input type="number" id="buyQuantity" placeholder="输入买入数量" step="1" oninput="updateSellQuantity()">
+                </div>
+                
+                <div class="form-group">
+                    <label for="buyFeeRate">买入手续费率（%）</label>
+                    <input type="number" id="buyFeeRate" placeholder="输入买入手续费率" step="0.001">
+                </div>
+            </div>
+            
+            <div class="section sell-section">
+                <div class="section-title">卖出信息</div>
+                
+                <div class="form-group">
+                    <label for="sellPrice">卖出单价（元）</label>
+                    <input type="number" id="sellPrice" placeholder="输入卖出价格" step="0.001">
+                </div>
+                
+                <div class="form-group">
+                    <label for="sellQuantity">卖出数量</label>
+                    <input type="number" id="sellQuantity" placeholder="输入卖出数量" step="1">
+                    <div class="sync-note">
+                        <i>※</i> 卖出数量默认与买入数量同步，可手动修改
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sellFeeRate">卖出手续费率（%）</label>
+                    <input type="number" id="sellFeeRate" placeholder="输入卖出手续费率" step="0.001">
+                </div>
+            </div>
+            
+            <div class="section loan-section">
+                <div class="section-title">借款信息</div>
+                
+                <div class="form-group">
+                    <label for="loanAmount">借款金额（元）</label>
+                    <input type="number" id="loanAmount" placeholder="输入借款金额" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="loanRate">借款利率（%）</label>
+                    <input type="number" id="loanRate" placeholder="输入借款利率" step="0.001">
+                </div>
+                
+                <div class="form-group">
+                    <label for="loanDays">借款天数（天）</label>
+                    <input type="number" id="loanDays" placeholder="输入借款天数" step="1">
+                </div>
+            </div>
+            
+            <div class="section target-section">
+                <div class="section-title">目标利润计算</div>
+                
+                <div class="form-group">
+                    <label for="targetProfit">目标最终利润（元）</label>
+                    <input type="number" id="targetProfit" placeholder="输入目标最终利润" step="0.01">
+                </div>
+                
+                <button class="btn btn-secondary" onclick="calculateTargetPrice()">计算所需卖出价格</button>
+            </div>
+            
+            <button class="btn" onclick="calculate()">计算利润</button>
+            
+            <div class="result-section">
+                <div class="result-title">计算结果</div>
+                
+                <div class="result-item">
+                    <span class="result-label">买入金额（元）</span>
+                    <span class="result-value" id="buyAmount">0.00</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">卖出金额（元）</span>
+                    <span class="result-value" id="sellAmount">0.00</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">买入手续费（元）</span>
+                    <span class="result-value" id="buyFee">0.00</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">卖出手续费（元）</span>
+                    <span class="result-value" id="sellFee">0.00</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">借款利息（元）</span>
+                    <span class="result-value" id="loanInterest">0.00</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">利润（元）</span>
+                    <span class="result-value" id="profit">0.00</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">去掉手续费的利润（元）</span>
+                    <span class="result-value" id="profitAfterFees">0.00</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">去掉借款利息的利润（元）</span>
+                    <span class="result-value" id="profitAfterLoan">0.00</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">最终利润（元）</span>
+                    <span class="result-value" id="finalProfit">0.00</span>
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <h3>使用说明</h3>
+                <ul>
+                    <li>输入买入和卖出的单价、数量以及手续费率</li>
+                    <li>卖出数量默认与买入数量相同，修改买入数量会自动更新卖出数量</li>
+                    <li>如果需要不同的卖出数量，可以手动修改卖出数量字段</li>
+                    <li>如果有借款，输入借款金额、利率和借款天数</li>
+                    <li>点击"计算利润"按钮查看各项计算结果</li>
+                    <li>要计算达到目标利润所需的卖出价格，输入目标利润后点击"计算所需卖出价格"</li>
+                    <li>绿色数字表示盈利，红色数字表示亏损</li>
+                    <li>借款利息 = 借款金额 × 借款利率 × 借款天数（无需除以365）</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量，用于跟踪是否手动修改了卖出数量
+        let sellQuantityManuallyChanged = false;
+        
+        function updateSellQuantity() {
+            if (!sellQuantityManuallyChanged) {
+                const buyQuantity = parseFloat(document.getElementById('buyQuantity').value) || 0;
+                document.getElementById('sellQuantity').value = buyQuantity;
+            }
+        }
+        
+        function calculate() {
+            // 获取输入值
+            const buyPrice = parseFloat(document.getElementById('buyPrice').value) || 0;
+            const sellPrice = parseFloat(document.getElementById('sellPrice').value) || 0;
+            const buyQuantity = parseFloat(document.getElementById('buyQuantity').value) || 0;
+            const sellQuantity = parseFloat(document.getElementById('sellQuantity').value) || 0;
+            const buyFeeRate = parseFloat(document.getElementById('buyFeeRate').value) || 0;
+            const sellFeeRate = parseFloat(document.getElementById('sellFeeRate').value) || 0;
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value) || 0;
+            const loanRate = parseFloat(document.getElementById('loanRate').value) || 0;
+            const loanDays = parseFloat(document.getElementById('loanDays').value) || 0;
+            
+            // 计算中间值
+            const buyAmount = buyPrice * buyQuantity;
+            const sellAmount = sellPrice * sellQuantity;
+            const buyFee = buyAmount * (buyFeeRate / 100);
+            const sellFee = sellAmount * (sellFeeRate / 100);
+            const loanInterest = loanAmount * (loanRate / 100) * loanDays; // 去掉 /365
+            const profit = sellAmount - buyAmount;
+            const profitAfterFees = profit - buyFee - sellFee;
+            const profitAfterLoan = profit - loanInterest;
+            const finalProfit = profit - buyFee - sellFee - loanInterest;
+            
+            // 更新显示结果
+            document.getElementById('buyAmount').textContent = buyAmount.toFixed(2);
+            document.getElementById('sellAmount').textContent = sellAmount.toFixed(2);
+            document.getElementById('buyFee').textContent = buyFee.toFixed(2);
+            document.getElementById('sellFee').textContent = sellFee.toFixed(2);
+            document.getElementById('loanInterest').textContent = loanInterest.toFixed(2);
+            
+            // 设置利润的颜色
+            setProfitColor('profit', profit);
+            setProfitColor('profitAfterFees', profitAfterFees);
+            setProfitColor('profitAfterLoan', profitAfterLoan);
+            setProfitColor('finalProfit', finalProfit);
+        }
+        
+        function calculateTargetPrice() {
+            // 获取输入值
+            const buyPrice = parseFloat(document.getElementById('buyPrice').value) || 0;
+            const buyQuantity = parseFloat(document.getElementById('buyQuantity').value) || 0;
+            const sellQuantity = parseFloat(document.getElementById('sellQuantity').value) || 0;
+            const buyFeeRate = parseFloat(document.getElementById('buyFeeRate').value) || 0;
+            const sellFeeRate = parseFloat(document.getElementById('sellFeeRate').value) || 0;
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value) || 0;
+            const loanRate = parseFloat(document.getElementById('loanRate').value) || 0;
+            const loanDays = parseFloat(document.getElementById('loanDays').value) || 0;
+            const targetProfit = parseFloat(document.getElementById('targetProfit').value) || 0;
+            
+            // 计算买入相关费用
+            const buyAmount = buyPrice * buyQuantity;
+            const buyFee = buyAmount * (buyFeeRate / 100);
+            const loanInterest = loanAmount * (loanRate / 100) * loanDays;
+            
+            // 计算所需的卖出价格
+            // 公式: 目标利润 = (卖出价格 * 卖出数量 * (1 - 卖出手续费率/100)) - (买入金额 + 买入手续费) - 借款利息
+            // 所以: 卖出价格 = (目标利润 + 买入金额 + 买入手续费 + 借款利息) / (卖出数量 * (1 - 卖出手续费率/100))
+            
+            if (sellQuantity === 0) {
+                alert("卖出数量不能为零");
+                return;
+            }
+            
+            if (sellFeeRate >= 100) {
+                alert("卖出手续费率不能大于或等于100%");
+                return;
+            }
+            
+            const denominator = sellQuantity * (1 - sellFeeRate / 100);
+            const requiredSellPrice = (targetProfit + buyAmount + buyFee + loanInterest) / denominator;
+            
+            // 更新卖出价格输入框
+            document.getElementById('sellPrice').value = requiredSellPrice.toFixed(4);
+            
+            // 重新计算所有结果
+            calculate();
+        }
+        
+        function setProfitColor(elementId, value) {
+            const element = document.getElementById(elementId);
+            element.textContent = value.toFixed(2);
+            
+            if (value > 0) {
+                element.className = 'result-value profit-positive';
+            } else if (value < 0) {
+                element.className = 'result-value profit-negative';
+            } else {
+                element.className = 'result-value';
+            }
+        }
+        
+        // 监听卖出数量的手动修改
+        document.getElementById('sellQuantity').addEventListener('input', function() {
+            sellQuantityManuallyChanged = true;
+        });
+    </script>
+</body>
+</html>
